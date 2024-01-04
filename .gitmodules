@@ -1,0 +1,3 @@
+[submodule "ifirmware_parser"]
+	path = ifirmware_parser
+	url = https://github.com/mast3rz3ro/ifirmware_parser
