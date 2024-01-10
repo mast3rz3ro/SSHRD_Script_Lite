@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-
+set -x
 		
 	if [ "$1" = '' ] || [ "$1" = '-h' ] || [ "$1" = '-help' ] || [ "$1" = '--help' ]; then
 		echo '[-] Usage: sshrd_lite.sh -p product_name -s ios_version (-g decrypt with gaster)'
@@ -186,8 +186,8 @@ if [ "$platform" != 'Darwin' ] && [ "$check_ios" -lt '161' ]; then
 		hdiutil attach -mountpoint '/tmp/SSHRD' "$temp_folder"'/ramdisk.dmg'
 		gtar -x --no-overwrite-dir -f 'misc/sshtars/ssh.tar' -C '/tmp/SSHRD/'
 		hdiutil detach -force '/tmp/SSHRD'
-		hdiutil resize -sectors min "$temp_folder"'/reassigned_ramdisk.dmg'
-	elif [ "$platform" != 'Darwin' ] && [ "$check_ios" -ge '161' ]; then
+		hdiutil resize -sectors min "$temp_folder"'/ramdisk.dmg'
+	elif [ "$platform" != 'Darwin' ] && [ "$check_ios" -ge '161' ]; then	                     
 		echo "[Warnning] We are missing a utility for handling APFS system!"
 		echo "[!] Please select lower than iOS 16.1 and try again."
 fi
@@ -197,9 +197,14 @@ fi
 		# img4 fork has some performance issues on windows and that's due to newlib's posix layer !
 		echo '[-] Packing using img4tool ...'
 		"$img4tool" -i "$temp_folder"'/ramdisk.dmg' -c "$output_folder"'/ramdisk.img4' -s "$shsh_file" -t rdsk
-	else
+	fi
+                        if [ "$platform" = 'Darwin' ] && [ "$check_ios" -ge '161' ]; then
+	
 		echo '[-] Packing using img4 utility ...'
-		"$img4" -i "$temp_folder"'/ramdisk.dmg' -o "$output_folder"'/ramdisk.img4' -M "$shsh_file" -A -T rdsk
+		"$img4" -i "$temp_folder"'/reassigned_ramdisk.dmg' -o "$output_folder"'/ramdisk.img4' -M "$shsh_file" -A -T rdsk
+                        else
+                                                "$img4" -i "$temp_folder"'/ramdisk.dmg' -o "$output_folder"'/ramdisk.img4' -M "$shsh_file" -A -T rdsk
+		
 	fi
 
 
