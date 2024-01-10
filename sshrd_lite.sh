@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-set -x
+
 		
 	if [ "$1" = '' ] || [ "$1" = '-h' ] || [ "$1" = '-help' ] || [ "$1" = '--help' ]; then
 		echo '[-] Usage: sshrd_lite.sh -p product_name -s ios_version (-g decrypt with gaster)'
@@ -58,7 +58,7 @@ set -x
 		mv -f './ssh.tar' './misc/sshtars/ssh.tar'
 	fi
 	if [ -s 'misc/sshtars/ssh.tar' ] && [ ! -s 'misc/sshtars/ssh.tar.gz' ] && [ "$platform" = 'Darwin' ]; then
-		echo '[-] Compressing sshtars into gzip ...'
+		echo '[-] Compressing sshtars into gz format ...'
 		gzip -9 -k './misc/sshtars/ssh.tar'
 	fi
 		
@@ -177,17 +177,17 @@ if [ "$platform" != 'Darwin' ] && [ "$check_ios" -lt '161' ]; then
 		hdiutil create -size 210m -imagekey diskimage-class=CRawDiskImage -format UDZO -fs HFS+ -layout NONE -srcfolder '/tmp/SSHRD' -copyuid root "$temp_folder"'/reassigned_ramdisk.dmg'
         hdiutil detach -force '/tmp/SSHRD'
         hdiutil attach -mountpoint '/tmp/SSHRD' "$temp_folder"'/reassigned_ramdisk.dmg'
-		gtar -x --no-overwrite-dir -f 'misc/sshtars/ssh.tar' -C '/tmp/SSHRD/'
+		gtar -x --no-overwrite-dir -f 'misc/sshtars/ssh.tar.gz' -C '/tmp/SSHRD/'
 		hdiutil detach -force '/tmp/SSHRD'
 		hdiutil resize -sectors min "$temp_folder"'/reassigned_ramdisk.dmg'
 	elif [ "$platform" = 'Darwin' ] && [ "$check_ios" -lt '161' ]; then
 		echo '[Warnning] Creating RAMDISK may fail on iOS 11.3 or lower.'
 		hdiutil resize -size 210MB "$temp_folder"'/ramdisk.dmg'
 		hdiutil attach -mountpoint '/tmp/SSHRD' "$temp_folder"'/ramdisk.dmg'
-		gtar -x --no-overwrite-dir -f 'misc/sshtars/ssh.tar' -C '/tmp/SSHRD/'
+		gtar -x --no-overwrite-dir -f 'misc/sshtars/ssh.tar.gz' -C '/tmp/SSHRD/'
 		hdiutil detach -force '/tmp/SSHRD'
 		hdiutil resize -sectors min "$temp_folder"'/ramdisk.dmg'
-	elif [ "$platform" != 'Darwin' ] && [ "$check_ios" -ge '161' ]; then	                     
+	elif [ "$platform" != 'Darwin' ] && [ "$check_ios" -ge '161' ]; then
 		echo "[Warnning] We are missing a utility for handling APFS system!"
 		echo "[!] Please select lower than iOS 16.1 and try again."
 fi
@@ -199,12 +199,10 @@ fi
 		"$img4tool" -i "$temp_folder"'/ramdisk.dmg' -c "$output_folder"'/ramdisk.img4' -s "$shsh_file" -t rdsk
 	fi
                         if [ "$platform" = 'Darwin' ] && [ "$check_ios" -ge '161' ]; then
-	
 		echo '[-] Packing using img4 utility ...'
-		"$img4" -i "$temp_folder"'/reassigned_ramdisk.dmg' -o "$output_folder"'/ramdisk.img4' -M "$shsh_file" -A -T rdsk
-                        else
-                                                "$img4" -i "$temp_folder"'/ramdisk.dmg' -o "$output_folder"'/ramdisk.img4' -M "$shsh_file" -A -T rdsk
-		
+                                                "$img4" -i "$temp_folder"'/reassigned_ramdisk.dmg' -o "$output_folder"'/ramdisk.img4' -M "$shsh_file" -A -T rdsk
+	else	
+		"$img4" -i "$temp_folder"'/ramdisk.dmg' -o "$output_folder"'/ramdisk.img4' -M "$shsh_file" -A -T rdsk
 	fi
 
 
@@ -212,6 +210,8 @@ fi
 
 		# Pack logo into img4
 		"$img4" -i 'misc/bootlogo.im4p' -o "$output_folder"'/logo.img4' -M "$shsh_file" -A -T rlgo
+		 rm -rf "$input_folder"
+		 rm -rf "$temp_folder"
 
 		echo '[!] All Tasks Completed !'
 		echo '[-] To boot this SSHRD please use below command:'

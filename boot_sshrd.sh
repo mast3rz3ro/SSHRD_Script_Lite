@@ -1,6 +1,5 @@
 #!/usr/bin/bash
 
-
 	if [ "$1" = '' ] || [ "$1" = '-h' ] || [ "$1" = '-help' ] || [ "$1" = '--help' ]; then
 		echo '[-] Usage: boot_sshrd.sh -p product_name -s ios_version'
 		echo '[-] For more info see "ifirmware_parser.sh -h"'
@@ -36,7 +35,7 @@ fi
 		"$irecovery" -v -f "$bootchain"'/iBSS.img4'
 		sleep 3
 		"$irecovery" -v -f "$bootchain"'/iBEC.img4'
-		sleep 3
+		sleep 10
 
 if [ "$cpid" = '0x8010' ] || [ "$cpid" = '0x8015' ] || [ "$cpid" = '0x8011' ] || [ "$cpid" = '0x8012' ]; then
 		"$irecovery" -c go
@@ -46,10 +45,10 @@ fi
 		"$irecovery" -v -c 'setpicture 0x1'
 		"$irecovery" -v -f "$bootchain"'/ramdisk.img4'
 		"$irecovery" -v -c ramdisk
-		"$irecovery" -v -f "$$bootchain"'/devicetree.img4'
+		"$irecovery" -v -f "$bootchain"'/devicetree.img4'
 		"$irecovery" -v -c devicetree
 
-if [ ! -s "$bootchain"'/trustcache.img4' ] || [ "$cpid" != '0x8012' ]; then
+if [ ! -s "$bootchain"'/trustcache.img4' ] || [ "$cpid" = '0x8012' ]; then
 		: # do nothing
 else
 		"$irecovery" -v -f "$bootchain"'/trustcache.img4'
