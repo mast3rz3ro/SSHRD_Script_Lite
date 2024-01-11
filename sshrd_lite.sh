@@ -2,7 +2,8 @@
 
 		
 	if [ "$1" = '' ] || [ "$1" = '-h' ] || [ "$1" = '-help' ] || [ "$1" = '--help' ]; then
-		echo '[-] Usage: sshrd_lite.sh -p product_name -s ios_version (-g decrypt with gaster)'
+		echo '[-] Usage: sshrd_lite.sh -p product_name -s ios_version'
+		echo '[-] Optional: (--ibootpatcher iBoot64Patcher/kairos) (-g decrypt with gaster)'
 		echo '[-] For more info see "ifirmware_parser.sh -h"'
 	exit 1
 	fi
@@ -36,10 +37,19 @@
         -p|--product) product_name="$2"; shift;;
         -s|--ios) switch="-s"; version="$2"; shift;;
         -b|--build) switch="-b"; version="$2"; shift;;
+        --ibootpatcher) iboot_patcher="$2"; shift;;
         *) break
 		esac
 		shift
 		done
+		
+		# Quick check if wrong parameter is passed for iboot_patcher
+	if [ "$iboot_patcher" = '' ] || [ "$iboot_patcher" = 'kairos' ] || [ "$iboot_patcher" = 'iBoot64Patcher' ]; then
+		: # do nothing
+	else
+		echo '[!] Wrong parameter:' "$iboot_patcher"
+	exit 1
+	fi
 		
 		# Enable decrypting with pwned dfu mode
 	if [[ $1 = '-g' || $2 = '-g' || $3 = '-g' || $4 = '-g' || $5 = '-g' || $6 = '-g' ]]; then pwndfu_decrypt="YES"; fi
@@ -58,7 +68,12 @@
 		mv -f './ssh.tar' './misc/sshtars/ssh.tar'
 	fi
 	if [ -s 'misc/sshtars/ssh.tar' ] && [ ! -s 'misc/sshtars/ssh.tar.gz' ] && [ "$platform" = 'Darwin' ]; then
+
 		echo '[-] Compressing sshtars into gz format ...'
+
+		echo '[-] Compressing sshtars into gz ...'
+		echo '[!] Special step for Darwin users (hdutil)'
+
 		gzip -9 -k './misc/sshtars/ssh.tar'
 	fi
 		
@@ -67,7 +82,8 @@
 		source './ifirmware_parser.sh' -p "$product_name" "$switch" "$version" -o "$input_folder" -r
 		if [ "$ibec_key" = "" ] && [ "$ibss_key" = '' ]; then echo '[!] Decryptions keys are not set !'; exit; fi
 
-		
+
+		check_ios="$major_ios""$minor_ios"
 		output_folder='2_ssh_ramdisk/'"$product_json"_"$model_json"_"$build_json"
 		if [ ! -d "$output_folder" ]; then mkdir "$output_folder"; fi
 		
@@ -98,8 +114,8 @@
 		# Decyrpt ibec/ibss/iboot with gaster
 		echo '[!] Decrypting with gaster...'
 		echo '[!] Please make sure to put your device into DFU mode'
-		echo "[Hint] Linux: If you stuck here then close the script and run again as root."
-		echo "[Hint] Windows: If you are using Msys2 then maybe you won't be able to see the process."
+		if [ "$platform" = 'Linux' ]; then echo "[Hint] Linux: If you stuck here then close the script and run again as root."; fi
+		if [ "$platform" = 'Windows' ]; then echo "[Hint] Windows: If you are using MSYS2 then maybe you won't be able to see any output."; fi
 		"$gaster" pwn
 		"$gaster" decrypt "$ibec_file" "$temp_folder"'/iBEC.dec'
 		"$gaster" decrypt "$ibss_file" "$temp_folder"'/iBSS.dec'
@@ -112,11 +128,24 @@
 		"$img4" -i "$ibss_file" -o "$temp_folder"'/iBSS.dec' -k "$ibss_key"
 		"$img4" -i "$iboot_file" -o "$temp_folder"'/iBoot.dec' -k "$iboot_key"
 	fi
-
+		
+	if [ "$platform" = 'Windows' ] || [ "$check_ios" -ge '150' ] && [ "$iboot_patcher" = 'kairos' ]; then
+		# I think kairos works better for iOS 15.x and above
+		# However user can select which one to use !
+		# Windows users cannot use this feature since tihmstar libpatchfinder are incompatible with windows !
+		
 		# Patch ibec/ibss/iboot using kairos
+		echo '[-] Patching iBoot files using kairos ...'
 		"$kairos" "$temp_folder"'/iBSS.dec' "$temp_folder"'/iBSS.patched'
 		"$kairos" "$temp_folder"'/iBEC.dec' "$temp_folder"'/iBEC.patched' -b "$boot_args"
 		"$kairos" "$temp_folder"'/iBoot.dec' "$temp_folder"'/iBoot.patched'
+	else
+		# Patch ibec/ibss/iboot using iboot64patcher
+		echo '[-] Patching iBoot files using iBoot64Patcher ...'
+		"$iBoot64Patcher" "$temp_folder"'/iBSS.dec' "$temp_folder"'/iBSS.patched'
+		"$iBoot64Patcher" "$temp_folder"'/iBEC.dec' "$temp_folder"'/iBEC.patched' -b "$boot_args"
+		"$iBoot64Patcher" "$temp_folder"'/iBoot.dec' "$temp_folder"'/iBoot.patched'
+	fi
 
 
 		# Pack ibec/ibss/iboot into img4
@@ -158,8 +187,6 @@
 
 
 	########## RAMDISK ##########
-
-		check_ios="$major_ios""$minor_ios"
 		
 		# Convert ramdisk into raw image
 		"$img4" -i "$ramdisk_file" -o "$temp_folder"'/ramdisk.dmg'
@@ -193,7 +220,7 @@ if [ "$platform" != 'Darwin' ] && [ "$check_ios" -lt '161' ]; then
 fi
 
 		echo '[-] Packing ramdisk into img4 ...'
-	if [[ "$platform" = 'MSYS'* ]] || [[ "$platform" = 'MINGW'* ]]; then
+	if [ "$platform" = 'Windows' ]; then
 		# img4 fork has some performance issues on windows and that's due to newlib's posix layer !
 		echo '[-] Packing using img4tool ...'
 		"$img4tool" -i "$temp_folder"'/ramdisk.dmg' -c "$output_folder"'/ramdisk.img4' -s "$shsh_file" -t rdsk
@@ -210,7 +237,7 @@ fi
 
 		# Pack logo into img4
 		"$img4" -i 'misc/bootlogo.im4p' -o "$output_folder"'/logo.img4' -M "$shsh_file" -A -T rlgo
-		 rm -rf "$input_folder"
+		
 		 rm -rf "$temp_folder"
 
 		echo '[!] All Tasks Completed !'
