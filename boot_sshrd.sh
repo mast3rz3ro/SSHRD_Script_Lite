@@ -29,10 +29,11 @@ if [ "$pwn" = '' ]; then
 
 		echo '[!] Starting to pwn the deviec...'
 		"$gaster" pwn
-		"$gaster" reset
+		# "$gaster" reset # Windows users has issue with gaster drivers
 fi
 		echo '[!] Starting SSHRD booting...'
-
+		
+		"$irecovery" -v -f "$bootchain"'/iBSS.img4'
 		"$irecovery" -v -f "$bootchain"'/iBSS.img4'
 		sleep 3
 		"$irecovery" -v -f "$bootchain"'/iBEC.img4'
@@ -46,7 +47,7 @@ fi
 		"$irecovery" -v -c 'setpicture 0x1'
 		"$irecovery" -v -f "$bootchain"'/ramdisk.img4'
 		"$irecovery" -v -c ramdisk
-		"$irecovery" -v -f "$$bootchain"'/devicetree.img4'
+		"$irecovery" -v -f "$bootchain"'/devicetree.img4'
 		"$irecovery" -v -c devicetree
 
 if [ ! -s "$bootchain"'/trustcache.img4' ] || [ "$cpid" != '0x8012' ]; then
@@ -60,3 +61,5 @@ fi
 		"$irecovery" -v -c bootx
 		
 		echo '[!] SSHRD Booting has completed!'
+		
+
