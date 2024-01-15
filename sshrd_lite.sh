@@ -209,7 +209,7 @@ if [ "$platform" != 'Darwin' ] && [ "$check_ios" -lt '161' ]; then
 		hdiutil attach -mountpoint '/tmp/SSHRD' "$temp_folder"'/ramdisk.dmg'
 		gtar -x --no-overwrite-dir -f 'misc/sshtars/ssh.tar.gz' -C '/tmp/SSHRD/'
 		hdiutil detach -force '/tmp/SSHRD'
-		hdiutil resize -sectors min "$temp_folder"'/reassigned_ramdisk.dmg'
+		hdiutil resize -sectors min "$temp_folder"'/ramdisk.dmg'
 	elif [ "$platform" != 'Darwin' ] && [ "$check_ios" -ge '161' ]; then
 		echo "[Warnning] We are missing a utility for handling APFS system!"
 		echo "[!] Please select lower than iOS 16.1 and try again."
@@ -220,8 +220,12 @@ fi
 		# img4 fork has some performance issues on windows and that's due to newlib's posix layer !
 		echo '[-] Packing using img4tool ...'
 		"$img4tool" -i "$temp_folder"'/ramdisk.dmg' -c "$output_folder"'/ramdisk.img4' -s "$shsh_file" -t rdsk
-	else
+	fi
+	if [ "$platform" = 'Darwin' ] && [ "$check_ios" -ge '161' ]; then
 		echo '[-] Packing using img4 utility ...'
+		"$img4" -i "$temp_folder"'/reassigned_ramdisk.dmg' -o "$output_folder"'/ramdisk.img4' -M "$shsh_file" -A -T rdsk
+	else
+ 		# Pack ramdisk for linux
 		"$img4" -i "$temp_folder"'/ramdisk.dmg' -o "$output_folder"'/ramdisk.img4' -M "$shsh_file" -A -T rdsk
 	fi
 
@@ -230,6 +234,9 @@ fi
 
 		# Pack logo into img4
 		"$img4" -i 'misc/bootlogo.im4p' -o "$output_folder"'/logo.img4' -M "$shsh_file" -A -T rlgo
+
+  		# Clean temp folder
+		rm -rf "$temp_folder"
 
 		echo '[!] All Tasks Completed !'
 		echo '[-] To boot this SSHRD please use below command:'

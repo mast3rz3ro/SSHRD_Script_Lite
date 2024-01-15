@@ -37,7 +37,7 @@ fi
 		"$irecovery" -v -f "$bootchain"'/iBSS.img4'
 		sleep 3
 		"$irecovery" -v -f "$bootchain"'/iBEC.img4'
-		sleep 3
+		sleep 10
 
 if [ "$cpid" = '0x8010' ] || [ "$cpid" = '0x8015' ] || [ "$cpid" = '0x8011' ] || [ "$cpid" = '0x8012' ]; then
 		"$irecovery" -c go
@@ -50,7 +50,7 @@ fi
 		"$irecovery" -v -f "$bootchain"'/devicetree.img4'
 		"$irecovery" -v -c devicetree
 
-if [ ! -s "$bootchain"'/trustcache.img4' ] || [ "$cpid" != '0x8012' ]; then
+if [ ! -s "$bootchain"'/trustcache.img4' ] && [ "$cpid" = '0x8012' ]; then
 		: # do nothing
 else
 		"$irecovery" -v -f "$bootchain"'/trustcache.img4'
@@ -61,5 +61,6 @@ fi
 		"$irecovery" -v -c bootx
 		
 		echo '[!] SSHRD Booting has completed!'
-		
 
+
+  
