@@ -68,12 +68,8 @@
 		mv -f './ssh.tar' './misc/sshtars/ssh.tar'
 	fi
 	if [ -s 'misc/sshtars/ssh.tar' ] && [ ! -s 'misc/sshtars/ssh.tar.gz' ] && [ "$platform" = 'Darwin' ]; then
-
-		echo '[-] Compressing sshtars into gz format ...'
-
 		echo '[-] Compressing sshtars into gz ...'
 		echo '[!] Special step for Darwin users (hdutil)'
-
 		gzip -9 -k './misc/sshtars/ssh.tar'
 	fi
 		
@@ -225,10 +221,11 @@ fi
 		echo '[-] Packing using img4tool ...'
 		"$img4tool" -i "$temp_folder"'/ramdisk.dmg' -c "$output_folder"'/ramdisk.img4' -s "$shsh_file" -t rdsk
 	fi
-                        if [ "$platform" = 'Darwin' ] && [ "$check_ios" -ge '161' ]; then
+	if [ "$platform" = 'Darwin' ] && [ "$check_ios" -ge '161' ]; then
 		echo '[-] Packing using img4 utility ...'
-                                                "$img4" -i "$temp_folder"'/reassigned_ramdisk.dmg' -o "$output_folder"'/ramdisk.img4' -M "$shsh_file" -A -T rdsk
-	else	
+		"$img4" -i "$temp_folder"'/reassigned_ramdisk.dmg' -o "$output_folder"'/ramdisk.img4' -M "$shsh_file" -A -T rdsk
+	else
+ 		# Pack ramdisk for linux
 		"$img4" -i "$temp_folder"'/ramdisk.dmg' -o "$output_folder"'/ramdisk.img4' -M "$shsh_file" -A -T rdsk
 	fi
 
@@ -237,8 +234,9 @@ fi
 
 		# Pack logo into img4
 		"$img4" -i 'misc/bootlogo.im4p' -o "$output_folder"'/logo.img4' -M "$shsh_file" -A -T rlgo
-		
-		 rm -rf "$temp_folder"
+
+  		# Clean temp folder
+		rm -rf "$temp_folder"
 
 		echo '[!] All Tasks Completed !'
 		echo '[-] To boot this SSHRD please use below command:'
