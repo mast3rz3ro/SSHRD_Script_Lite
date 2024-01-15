@@ -1,5 +1,6 @@
 #!/usr/bin/bash
 
+
 	if [ "$1" = '' ] || [ "$1" = '-h' ] || [ "$1" = '-help' ] || [ "$1" = '--help' ]; then
 		echo '[-] Usage: boot_sshrd.sh -p product_name -s ios_version'
 		echo '[-] For more info see "ifirmware_parser.sh -h"'
@@ -49,7 +50,7 @@ fi
 		"$irecovery" -v -f "$bootchain"'/devicetree.img4'
 		"$irecovery" -v -c devicetree
 
-if [ ! -s "$bootchain"'/trustcache.img4' ] || [ "$cpid" = '0x8012' ]; then
+if [ ! -s "$bootchain"'/trustcache.img4' ] && [ "$cpid" = '0x8012' ]; then
 		: # do nothing
 else
 		"$irecovery" -v -f "$bootchain"'/trustcache.img4'
@@ -61,3 +62,5 @@ fi
 		
 		echo '[!] SSHRD Booting has completed!'
 
+
+  
