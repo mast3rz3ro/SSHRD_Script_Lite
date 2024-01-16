@@ -160,9 +160,9 @@
 	else
 		# Patch ibec/ibss/iboot using iboot64patcher
 		echo '[-] Patching iBoot files using iBoot64Patcher ...'
-		"$iBoot64Patcher" "$bp_switch" "$temp_folder"'/iBSS.dec' "$temp_folder"'/iBSS.patched'
-		"$iBoot64Patcher" "$bp_switch" "$temp_folder"'/iBEC.dec' "$temp_folder"'/iBEC.patched' -b "$boot_args"
-		"$iBoot64Patcher" "$bp_switch" "$temp_folder"'/iBoot.dec' "$temp_folder"'/iBoot.patched'
+		"$iBoot64Patcher" $bp_switch "$temp_folder"'/iBSS.dec' "$temp_folder"'/iBSS.patched'
+		"$iBoot64Patcher" $bp_switch "$temp_folder"'/iBEC.dec' "$temp_folder"'/iBEC.patched' -b "$boot_args"
+		"$iBoot64Patcher" $bp_switch "$temp_folder"'/iBoot.dec' "$temp_folder"'/iBoot.patched'
 	fi
 
 
