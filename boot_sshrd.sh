@@ -32,10 +32,16 @@ if [ "$pwn" = '' ]; then
 		# "$gaster" reset # Windows users has issue with gaster drivers
 fi
 		echo '[!] Starting SSHRD booting...'
-		
+
+		echo '[-] Sending iBSS ...'
+		ibss_check=$("$irecovery" -v -f "$bootchain"'/iBSS.img4' | grep -o '100')
+if [ "$ibss_check" != '100' ]; then
+		# If iBSS already sent then do not send it again !
 		"$irecovery" -v -f "$bootchain"'/iBSS.img4'
-		"$irecovery" -v -f "$bootchain"'/iBSS.img4'
+fi
 		sleep 3
+		
+		echo '[-] Sending iBEC ...'
 		"$irecovery" -v -f "$bootchain"'/iBEC.img4'
 		sleep 10
 
@@ -45,18 +51,24 @@ if [ "$cpid" = '0x8010' ] || [ "$cpid" = '0x8015' ] || [ "$cpid" = '0x8011' ] ||
 fi
 		"$irecovery" -v -f "$bootchain"'/logo.img4'
 		"$irecovery" -v -c 'setpicture 0x1'
+		
+		echo '[-] Sending ramdisk ...'
 		"$irecovery" -v -f "$bootchain"'/ramdisk.img4'
 		"$irecovery" -v -c ramdisk
+		
+		echo '[-] Sending devicetree ...'
 		"$irecovery" -v -f "$bootchain"'/devicetree.img4'
 		"$irecovery" -v -c devicetree
 
 if [ ! -s "$bootchain"'/trustcache.img4' ] && [ "$cpid" = '0x8012' ]; then
 		: # do nothing
 else
+		echo '[-] Sending trustcache ...'
 		"$irecovery" -v -f "$bootchain"'/trustcache.img4'
 		"$irecovery" -v -c firmware
 fi
 
+		echo '[-] Sending kernelcache ...'
 		"$irecovery" -v -f "$bootchain"'/kernelcache.img4'
 		"$irecovery" -v -c bootx
 		

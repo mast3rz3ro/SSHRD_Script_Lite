@@ -3,7 +3,11 @@
 		
 	if [ "$1" = '' ] || [ "$1" = '-h' ] || [ "$1" = '-help' ] || [ "$1" = '--help' ]; then
 		echo '[-] Usage: sshrd_lite.sh -p product_name -s ios_version'
-		echo '[-] Optional: (--ibootpatcher iBoot64Patcher/kairos) (-g decrypt with gaster)'
+		echo '[-] Optional:'
+		echo '           -g/--gaster (decrypt with gaster)'
+		echo '           --boot/--patch-iboot-with number (1 = iBoot64Patcher / 2 = kairos)'
+		echo '           --img4/--pack-img4-with number (1 = img4 / 2 = img4tool)'
+		echo
 		echo '[-] For more info see "ifirmware_parser.sh -h"'
 	exit 1
 	fi
@@ -37,18 +41,37 @@
         -p|--product) product_name="$2"; shift;;
         -s|--ios) switch="-s"; version="$2"; shift;;
         -b|--build) switch="-b"; version="$2"; shift;;
-        --ibootpatcher) iboot_patcher="$2"; shift;;
+        --boot|--patch-iboot-with) patch_iboot_with="$2"; shift;;
+        --img4|--pack-img4-with) pack_img4_with="$2"; shift;;
         *) break
 		esac
 		shift
 		done
+	
+	
+		##############################
+		#      Optional switchs      #
+		##############################
 		
-		# Quick check if wrong parameter is passed for iboot_patcher
-	if [ "$iboot_patcher" = '' ] || [ "$iboot_patcher" = 'kairos' ] || [ "$iboot_patcher" = 'iBoot64Patcher' ]; then
-		: # do nothing
+		# Clean the variable
+		bp_switch=''
+		
+	if [ "$patch_iboot_with" = '1' ]; then
+		patch_iboot_with='iBoot64Patcher'
+	elif [ "$patch_iboot_with" = '2' ]; then
+		patch_iboot_with='kairos'
 	else
-		echo '[!] Wrong parameter:' "$iboot_patcher"
-	exit 1
+		patch_iboot_with='iBoot64Patcher'
+		# haiyuidesu fork of iBoot64Patcher uses -p switch (this is are required for windows)
+		if [ "$platform" = 'Windows' ]; then bp_switch='-p'; fi
+	fi
+	
+	if [ "$pack_img4_with" = '1' ]; then
+		pack_img4_with='img4'
+	elif [ "$pack_img4_with" = '2' ]; then
+		pack_img4_with='img4tool'
+	else
+		pack_img4_with='img4'
 	fi
 		
 		# Enable decrypting with pwned dfu mode
@@ -125,10 +148,9 @@
 		"$img4" -i "$iboot_file" -o "$temp_folder"'/iBoot.dec' -k "$iboot_key"
 	fi
 		
-	if [ "$platform" = 'Windows' ] || [ "$check_ios" -ge '150' ] && [ "$iboot_patcher" = 'kairos' ]; then
+	if [ "$check_ios" -ge '150' ] && [ "$patch_iboot_with" = 'kairos' ]; then
 		# I think kairos works better for iOS 15.x and above
 		# However user can select which one to use !
-		# Windows users cannot use this feature since tihmstar libpatchfinder are incompatible with windows !
 		
 		# Patch ibec/ibss/iboot using kairos
 		echo '[-] Patching iBoot files using kairos ...'
@@ -138,9 +160,9 @@
 	else
 		# Patch ibec/ibss/iboot using iboot64patcher
 		echo '[-] Patching iBoot files using iBoot64Patcher ...'
-		"$iBoot64Patcher" "$temp_folder"'/iBSS.dec' "$temp_folder"'/iBSS.patched'
-		"$iBoot64Patcher" "$temp_folder"'/iBEC.dec' "$temp_folder"'/iBEC.patched' -b "$boot_args"
-		"$iBoot64Patcher" "$temp_folder"'/iBoot.dec' "$temp_folder"'/iBoot.patched'
+		"$iBoot64Patcher" "$bp_switch" "$temp_folder"'/iBSS.dec' "$temp_folder"'/iBSS.patched'
+		"$iBoot64Patcher" "$bp_switch" "$temp_folder"'/iBEC.dec' "$temp_folder"'/iBEC.patched' -b "$boot_args"
+		"$iBoot64Patcher" "$bp_switch" "$temp_folder"'/iBoot.dec' "$temp_folder"'/iBoot.patched'
 	fi
 
 
@@ -163,7 +185,7 @@
 		"$kerneldiff" "$temp_folder"'/kcache.raw' "$temp_folder"'/kcache.patched' "$temp_folder"'/kc.bpatch'
 
 		# Pack kernelcache into img4
-		"$img4" -i "$kernel_file" -o "$output_folder"'/kernelcache.img4' -M "$shsh_file" -T rkrn -P "$temp_folder"'/kc.bpatch' -J
+		"$img4" -i "$kernel_file" -o "$output_folder"'/kernelcache.img4' -M "$shsh_file" -T rkrn -P "$temp_folder"'/kc.bpatch' `if [ "$platform" = 'Linux' ]; then echo '-J'; fi`
 		echo '[-] Patching kernel completed !'
 
 
@@ -216,17 +238,25 @@ if [ "$platform" != 'Darwin' ] && [ "$check_ios" -lt '161' ]; then
 fi
 
 		echo '[-] Packing ramdisk into img4 ...'
-	if [ "$platform" = 'Windows' ]; then
-		# img4 fork has some performance issues on windows and that's due to newlib's posix layer !
-		echo '[-] Packing using img4tool ...'
-		"$img4tool" -i "$temp_folder"'/ramdisk.dmg' -c "$output_folder"'/ramdisk.img4' -s "$shsh_file" -t rdsk
-	fi
 	if [ "$platform" = 'Darwin' ] && [ "$check_ios" -ge '161' ]; then
+	
+		# Pack ramdisk for darwin iOS 16.1 and above
 		echo '[-] Packing using img4 utility ...'
 		"$img4" -i "$temp_folder"'/reassigned_ramdisk.dmg' -o "$output_folder"'/ramdisk.img4' -M "$shsh_file" -A -T rdsk
+		
+	elif [ "$platform" = 'Windows' ] && [ "$pack_img4_with" = 'img4tool' ]; then
+		echo '[WARNNING] You have selected packing ramdisk.dmg with img4tool'
+		echo " the img4 fork has in Windows can take a lot of time when packing ramdisk.dmg"
+		echo ' however using img4tool can also result in failing to boot'
+		echo ' please note that this option is only available for Windows users.'
+		echo
+		echo '[-] Packing using img4tool ...'
+		"$img4tool" -i "$temp_folder"'/ramdisk.dmg' -c "$output_folder"'/ramdisk.img4' -s "$shsh_file" -t rdsk
+
 	else
- 		# Pack ramdisk for linux
+ 		# Pack ramdisk for linux windows and darwin
 		"$img4" -i "$temp_folder"'/ramdisk.dmg' -o "$output_folder"'/ramdisk.img4' -M "$shsh_file" -A -T rdsk
+		
 	fi
 
 
@@ -236,6 +266,7 @@ fi
 		"$img4" -i 'misc/bootlogo.im4p' -o "$output_folder"'/logo.img4' -M "$shsh_file" -A -T rlgo
 
   		# Clean temp folder
+		echo '[-] Cleaning temp directory ...'
 		rm -rf "$temp_folder"
 
 		echo '[!] All Tasks Completed !'
