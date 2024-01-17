@@ -59,6 +59,24 @@ or
 $ ./sshrd_lite.sh -p product_name -b build_version
 ```
 
+* Optional arguments:
+
+  * -g or --gaster: Decrypt the firmware file with Gaster.
+  * use --boot or --patch-iboot-with: Specify the bootloader version to use. Options are:
+      * 1 for iBoot64Patcher
+      * 2 for kairos
+  * --img4 or --pack-img4-with: Specify the IMG4 tool version to use. Options are:
+      * 1 for img4
+      * 2 for img4tool
+
+For example, the following command will decrypt and patch an iOS 15.0 firmware file for an iPhone 11 with the iBoot64Patcher bootloader and img4 tool:
+
+bash
+```
+./sshrd_lite.sh -p iPhone11,2 -s 15.0 -b 19A344 --boot 1 --img4 1
+```
+*Note that the --boot and --img4 options are optional, so you can omit them if you want to use the default values.*
+
 * For more info see:
 ```
 $ ./sshrd_lite.sh -h
