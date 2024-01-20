@@ -4,9 +4,10 @@
 	if [ "$1" = '' ] || [ "$1" = '-h' ] || [ "$1" = '-help' ] || [ "$1" = '--help' ]; then
 		echo '[-] Usage: sshrd_lite.sh -p product_name -s ios_version'
 		echo '[-] Optional:'
+		echo '           -m/--model specify model version'
 		echo '           -g/--gaster (decrypt with gaster)'
 		echo '           --boot/--patch-iboot-with number (1 = iBoot64Patcher / 2 = kairos)'
-		echo '           --img4/--pack-img4-with number (1 = img4 / 2 = img4tool)'
+		echo '           --img4/--pack-ramdisk-with number (1 = img4 / 2 = img4tool)'
 		echo
 		echo '[-] For more info see "ifirmware_parser.sh -h"'
 	exit 1
@@ -39,10 +40,11 @@
 		while true; do
 		case "$1" in
         -p|--product) product_name="$2"; shift;;
+        -m|--model) model_version="$2"; shift;;
         -s|--ios) switch="-s"; version="$2"; shift;;
         -b|--build) switch="-b"; version="$2"; shift;;
         --boot|--patch-iboot-with) patch_iboot_with="$2"; shift;;
-        --img4|--pack-img4-with) pack_img4_with="$2"; shift;;
+        --img4|--pack-ramdisk-with) pack_ramdisk_with="$2"; shift;;
         *) break
 		esac
 		shift
@@ -66,12 +68,12 @@
 		if [ "$platform" = 'Windows' ]; then bp_switch='-p'; fi
 	fi
 	
-	if [ "$pack_img4_with" = '1' ]; then
-		pack_img4_with='img4'
-	elif [ "$pack_img4_with" = '2' ]; then
-		pack_img4_with='img4tool'
+	if [ "$pack_ramdisk_with" = '1' ]; then
+		pack_ramdisk_with='img4'
+	elif [ "$pack_ramdisk_with" = '2' ]; then
+		pack_ramdisk_with='img4tool'
 	else
-		pack_img4_with='img4'
+		pack_ramdisk_with='img4'
 	fi
 		
 		# Enable decrypting with pwned dfu mode
@@ -98,7 +100,7 @@
 		
 		# Get firmware keys and download ramdisk
 		# Note: all variables are coming from here !
-		source './ifirmware_parser.sh' -p "$product_name" "$switch" "$version" -o "$input_folder" -r
+		source './ifirmware_parser.sh' -p "$product_name" "$switch" "$version" -o "$input_folder" -m "$model_version" -r
 		if [ "$ibec_key" = "" ] && [ "$ibss_key" = '' ]; then echo '[!] Decryptions keys are not set !'; exit; fi
 
 
@@ -244,7 +246,7 @@ fi
 		echo '[-] Packing using img4 utility ...'
 		"$img4" -i "$temp_folder"'/reassigned_ramdisk.dmg' -o "$output_folder"'/ramdisk.img4' -M "$shsh_file" -A -T rdsk
 		
-	elif [ "$platform" = 'Windows' ] && [ "$pack_img4_with" = 'img4tool' ]; then
+	elif [ "$platform" = 'Windows' ] && [ "$pack_ramdisk_with" = 'img4tool' ]; then
 		echo '[WARNNING] You have selected packing ramdisk.dmg with img4tool'
 		echo " the img4 fork has in Windows can take a lot of time when packing ramdisk.dmg"
 		echo ' however using img4tool can also result in failing to boot'
