@@ -1,1 +1,10 @@
 tools/*
+1_prepare_ramdisk
+2_ssh_ramdisk
+misc/sshtars/ssh.tar
+ca-bundle.crt
+ifirmware_parser.sh
+misc/firmwares.json
+misc/platform_check.sh
+misc/build_manifest
+misc/firmware_keys

@@ -2,13 +2,14 @@
 
 		
 	if [ "$1" = '' ] || [ "$1" = '-h' ] || [ "$1" = '-help' ] || [ "$1" = '--help' ]; then
-		echo '[-] Usage: sshrd_lite.sh -p product_name -s ios_version'
-		echo '[-] Optional:'
-		echo '           -m/--model specify model version'
-		echo '           -g/--gaster (decrypt with gaster)'
-		echo '           --boot/--patch-iboot-with number (1 = iBoot64Patcher / 2 = kairos)'
-		echo '           --img4/--pack-ramdisk-with number (1 = img4 / 2 = img4tool)'
-		echo
+		echo '[-] Usage: sshrd_lite.sh [parameters]'
+		echo '[-] Basic Parameters |      Optional'
+		echo '----------------------------------------'
+		echo ' -p Product Name     | -m specify model version'
+		echo ' -s iOS Version      | -g decrypt with gaster'
+		echo ' -b Build Version    | -y 1/2 iBoot64Patcher/kairos'
+		echo ' -c SSH connection   | -z 1/2 img4/img4tool'
+		echo '----------------------------------------'
 		echo '[-] For more info see "ifirmware_parser.sh -h"'
 	exit 1
 	fi
@@ -37,20 +38,34 @@
 		chmod -R +x 'tools/'
 		chmod +x './ifirmware_parser.sh' './misc/platform_check.sh' './boot_sshrd.sh'
 
-		while true; do
-		case "$1" in
-        -p|--product) product_name="$2"; shift;;
-        -m|--model) model_version="$2"; shift;;
-        -s|--ios) switch="-s"; version="$2"; shift;;
-        -b|--build) switch="-b"; version="$2"; shift;;
-        --boot|--patch-iboot-with) patch_iboot_with="$2"; shift;;
-        --img4|--pack-ramdisk-with) pack_ramdisk_with="$2"; shift;;
-        *) break
-		esac
-		shift
-		done
+		########## Switch loop ##########
+while getopts y:z:cg option >/dev/null 2>&1; do
+		case "${option}"
+	in
+		y) patch_iboot_with="${OPTARG}";;
+		z) pack_ramdisk_with="${OPTARG}";;
+		# Options
+		c) ssh_connect="yes";;
+		g) pwndfu_decrypt="yes";;
+	esac
+done
 	
-	
+
+if [ "$ssh_connect" = 'yes' ]; then
+		if [ "$iproxy" = '' ]; then echo '[!] Warnning iproxy variable are not set !'; fi
+		if [ "$sshpass" = '' ]; then echo '[!] Warnning sshpass variable are not set !'; fi
+		"$iproxy" 2222 22 &>/dev/null &
+		check=$("$sshpass" -p 'alpine' ssh -o StrictHostKeyChecking=no -p2222 root@localhost echo connected)
+	if [ $check = 'connected' ]; then
+		"$sshpass" -p 'alpine' ssh -o StrictHostKeyChecking=no -p2222 root@localhost
+	else
+		echo '[-] Force closing usbmuxd ...'
+		sudo systemctl stop usbmuxd
+		sudo usbmuxd -p -f
+	fi
+		exit
+fi
+
 		##############################
 		#      Optional switchs      #
 		##############################
@@ -75,12 +90,8 @@
 	else
 		pack_ramdisk_with='img4'
 	fi
-		
-		# Enable decrypting with pwned dfu mode
-	if [[ $1 = '-g' || $2 = '-g' || $3 = '-g' || $4 = '-g' || $5 = '-g' || $6 = '-g' ]]; then pwndfu_decrypt="YES"; fi
-	if [[ $1 = '-gaster' || $2 = '-gaster' || $3 = '-gaster' || $4 = '-gaster' || $5 = '-gaster' || $6 = '-gaster' ]]; then pwndfu_decrypt="YES"; fi
-		
-		
+
+
 		input_folder='1_prepare_ramdisk'
 		temp_folder='2_ssh_ramdisk/temp_files'
 		if [ ! -d "$input_folder" ]; then mkdir -p "$input_folder"; fi
@@ -100,8 +111,10 @@
 		
 		# Get firmware keys and download ramdisk
 		# Note: all variables are coming from here !
-		source './ifirmware_parser.sh' -p "$product_name" "$switch" "$version" -o "$input_folder" -m "$model_version" -r
-		if [ "$ibec_key" = "" ] && [ "$ibss_key" = '' ]; then echo '[!] Decryptions keys are not set !'; exit; fi
+		set -- "$@" '-r -k -o1_prepare_ramdisk' # makes sure to always download the ramdisk and decryption keys
+		export OPTIND='1' # zsh may not work ?
+		source './ifirmware_parser.sh'
+		if [ "$ibec_key" = "" ] && [ "$ibss_key" = '' ]; then echo '[e] Decryptions keys are not set !'; exit; fi
 
 
 		check_ios="$major_ios""$minor_ios"
@@ -131,7 +144,7 @@
 		"$img4tool" -e -s 'misc/shsh/'"$cpid_json"'.shsh' -m "$temp_folder"'/shsh.bin'
 		shsh_file="$temp_folder"'/shsh.bin'
 
-	if [ "$pwndfu_decrypt" = 'YES' ]; then
+	if [ "$pwndfu_decrypt" = 'yes' ]; then
 		# Decyrpt ibec/ibss/iboot with gaster
 		echo '[!] Decrypting with gaster...'
 		echo '[!] Please make sure to put your device into DFU mode'
@@ -143,7 +156,7 @@
 		"$gaster" decrypt "$iboot_file" "$temp_folder"'/iBoot.dec'
 	fi
 
-	if [ "$pwndfu_decrypt" != 'YES' ]; then
+	if [ "$pwndfu_decrypt" != 'yes' ]; then
 		# Decrypt ibec/ibss/iboot with img4
 		"$img4" -i "$ibec_file" -o "$temp_folder"'/iBEC.dec' -k "$ibec_key"
 		"$img4" -i "$ibss_file" -o "$temp_folder"'/iBSS.dec' -k "$ibss_key"
