@@ -1,44 +1,30 @@
-<h1 align="center">SSHRD Lite</h1>
-<h2 align="center">A lite fork of SSH Ramdisk Script</h2>
-<p align="center">
-  <a href="https://github.com/mast3rz3ro/SSHRD_Script_Lite/graphs/contributors" target="_blank">
-    <img src="https://img.shields.io/github/contributors/mast3rz3ro/SSHRD_Script_Lite.svg" alt="Contributors">
-  </a>
-  <a href="https://github.com/mast3rz3ro/SSHRD_Script_Lite/commits/main" target="_blank">
-    <img src="https://img.shields.io/github/commit-activity/w/mast3rz3ro/SSHRD_Script_Lite.svg" alt="Commits">
-  </a>
-</p>
+# SSHRD Lite
 
-<p align="center">
-Create and boot a SSH ramdisk on checkm8 devices
-</p>
+* A lite fork of SSH [RAMDISK Script](https://github.com/verygenericname/SSHRD_Script)
 
----
-
-# Features
+## Features
 
 1. Make SSH ramdisk without connecting the iDevice.
 2. Lite version which only focuses to make SSH ramdisk and not like main fork.
-3. Complete rewrite from original fork.
-4. Other features you should find it yourself :).
+3. Other features you should find it yourself :).
 
-# Requirements
+## Requirements
 
-* For Windows users you need to get bash environment. You can get it by installing Msys2, Cygwin, or Git-Bash
+* Windows users you need to get bash environment. You can get it by installing MSYS2, Cygwin, or Git-Bash
 * Linux and MacOS users you already have bash environment.
 
-# Supported devices and limits
+## Supported devices and limits
 
 * A 64-bit iDevice supported by checkm8 (A7-A11).
 * Apple TV and M1/T2 requires manually replacing the "ssh.tar.gz" find it [here](https://github.com/verygenericname/sshtars).
 * Linux/Windows currently doesn't support making ramdisk for iOS 16.1 and above.
 
-# How to use (All Platforms):
+## How to use (All Platforms):
 
 1. You need to install git:
 
 ```
-For Msys2 users you can install git via:
+For MSYS2 users you can install git via:
 $ pacman -S git
 ```
 
@@ -65,7 +51,7 @@ $ ./sshrd_lite.sh -h
 ```
 
 
-# Important Notes
+## Important Notes
 
 * Do not run 'mount_filesystems' if you are running on iOS 11.x and lower.
 
@@ -83,7 +69,7 @@ $ sudo usbmuxd -p -f
 * If you are a member of subreddit/setupapp then you should join [here](https://t.me/Tsun4m1_tool)
 
 
-# Credits
+## Credits
 
 - [verygenericname](https://github.com/verygenericname/SSHRD_Script) The author of SSHRD Script
 - [ifirmparser](https://github.com/mast3rz3ro/ifirmware_parser) for preparing boot files and decryption keys
