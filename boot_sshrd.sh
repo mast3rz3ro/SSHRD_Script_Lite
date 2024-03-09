@@ -1,19 +1,28 @@
 #!/usr/bin/bash
 
 
-	if [ "$1" = '' ] || [ "$1" = '-h' ] || [ "$1" = '-help' ] || [ "$1" = '--help' ]; then
-		echo '[-] Usage: boot_sshrd.sh -p product_name -s ios_version'
+	if [ "$1" = '-h' ] || [ "$1" = '-help' ] || [ "$1" = '--help' ]; then
+		echo '[-] Usage: boot_sshrd.sh'
+		echo '[-] Description: Used to boot SSHRD created by SSHRD Lite'
 		echo '[-] For more info see "ifirmware_parser.sh -h"'
 	exit 1
 	fi
 		source './misc/platform_check.sh' # Check platform and set tools
-		source './ifirmware_parser.sh'
-		bootchain='2_ssh_ramdisk/'"$product_json"_"$model_json"_"$build_json"
 
-
+		dirs=(./2_ssh_ramdisk/*/)
+read -p "$(
+        f=0
+        for dirname in "${dirs[@]}" ; do
+                echo "$((++f)): $dirname"
+        done
+        echo -ne '[-] Please select a directory:'
+)" selection
+		selected_dir="${dirs[$((selection-1))]}"
+		bootchain="$selected_dir"
+		
 	if [ ! -s "$bootchain"'/iBEC.img4' ] && [ ! -s "$bootchain"'/iBSS.img4' ]; then
-		echo '[Error] Error bootchain:' "'$bootchain'" 'does not exist'
-		echo '[Hint] Please make it using:' "'./sshrd_lite.sh -p $product_json -b $build_json'"
+		echo '[e] Bootchain:' "'$bootchain'" 'does not exist'
+		echo '[i] Please use sshrd_lite.sh to create one.'
 		exit 1
 	fi
 
