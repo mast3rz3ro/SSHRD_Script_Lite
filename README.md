@@ -1,6 +1,6 @@
 # SSHRD Lite
 
-* A lite fork of SSH [RAMDISK Script](https://github.com/verygenericname/SSHRD_Script)
+* A lite fork of [SSH RAMDISK Script](https://github.com/verygenericname/SSHRD_Script)
 
 ## Features
 
