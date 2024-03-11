@@ -130,7 +130,7 @@ fi
 		devicetree_file="$input_folder"'/'"$devicetree_file"
 		
 		# Set boot arguments
-		if [ "$cpid_json" = '0x8960' ] || [ "$cpid_json" = '0x7000' ] || [ "$cpid_json" = '0x7001' ]; then boot_args='rd=md0 debug=0x2014e -v wdt=-1 nand-enable-reformat=1 -restore -n'; else boot_args='rd=md0 debug=0x2014e -v wdt=-1 -n'; fi
+		if [ "$cpid" = '0x8960' ] || [ "$cpid" = '0x7000' ] || [ "$cpid" = '0x7001' ]; then boot_args='rd=md0 debug=0x2014e -v wdt=-1 nand-enable-reformat=1 -restore -n'; else boot_args='rd=md0 debug=0x2014e -v wdt=-1 -n'; fi
 
 
 
@@ -141,7 +141,7 @@ fi
 	########## iBEC/iBSS/iBoot ##########
 
 		# Convert shsh ticket into binary
-		"$img4tool" -e -s 'misc/shsh/'"$cpid_json"'.shsh' -m "$temp_folder"'/shsh.bin'
+		"$img4tool" -e -s 'misc/shsh/'"$cpid"'.shsh' -m "$temp_folder"'/shsh.bin'
 		shsh_file="$temp_folder"'/shsh.bin'
 
 	if [ "$pwndfu_decrypt" = 'yes' ]; then

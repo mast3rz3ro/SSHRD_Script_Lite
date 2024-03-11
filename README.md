@@ -66,13 +66,14 @@ $ sudo usbmuxd -p -f
 
 * For support please open new issue [here](https://github.com/mast3rz3ro/sshrd_script_lite/issues)
 
-* If you are a member of subreddit/setupapp then you should join [here](https://t.me/Tsun4m1_tool)
+* r/setupapp memebers don't miss the chance to join [here](https://t.me/Tsun4m1_tool)
 
 
 ## Credits
 
 - [verygenericname](https://github.com/verygenericname/SSHRD_Script) The author of SSHRD Script
 - [ifirmparser](https://github.com/mast3rz3ro/ifirmware_parser) for preparing boot files and decryption keys
+- [TRANTUAN](https://github.com/TRANTUAN-PC) for testing, thanks you so much :)
 - [kairos](https://github.com/dayt0n/kairos) iboot files patcher (supports patching the newer iOS e.g iOS 17.1)
 - [firecore](https://github.com/firecore/Seas0nPass-Windows/) for providing an updated hfsplus for windows
 - [tihmstar](https://github.com/tihmstar) for pzb/original iBoot64Patcher/img4tool
