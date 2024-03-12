@@ -1,45 +1,47 @@
 #!/usr/bin/bash
 
-		
-	if [ "$1" = '' ] || [ "$1" = '-h' ] || [ "$1" = '-help' ] || [ "$1" = '--help' ]; then
+
+if [ "$1" = '' ]; then echo "For info please use 'sshrd_lite.sh -h'"; exit; fi
+usage (){
 		echo '[-] Usage: sshrd_lite.sh [parameters]'
 		echo '[-] Basic Parameters |      Optional'
 		echo '----------------------------------------'
 		echo ' -p Product Name     | -m specify model version'
 		echo ' -s iOS Version      | -g decrypt with gaster'
-		echo ' -b Build Version    | -y 1/2 iBoot64Patcher/kairos'
+		echo ' -b Build Version    | -y 1/2 kairos/iBoot64Patcher'
 		echo ' -c SSH connection   | -z 1/2 img4/img4tool'
 		echo '----------------------------------------'
 		echo '[-] For more info see "ifirmware_parser.sh -h"'
-	exit 1
-	fi
+		exit 1
+}
 
 		##############################
 		#       Initialization       #
 		##############################
 
-	if [ -s 'ifirmware_parser/README.md' ]; then
+if [ ! -s 'misc/platform_check.sh' ] || [ ! -s './ifirmware_parser.sh' ]; then
+	if [ -s './ifirmware_parser/README.md' ]; then
 		echo '[-] Setting-up ifirmware parser (for first run) ...'
-		mv -f './ifirmware_parser/ifirmware_parser.sh' './'
-		mv -f './ifirmware_parser/ca-bundle.crt' './'
-		cp -Rf './ifirmware_parser/misc' './'
-		echo "[!] Removing 'ifirmware_parser' folder ..."
-		rm -Rf './ifirmware_parser'
-	elif [ ! -s 'misc/platform_check.sh' ] || [ ! -s 'ifirmware_parser.sh' ]; then
+		cp -f './ifirmware_parser/ifirmware_parser.sh' './'
+		cp -f './ifirmware_parser/ca-bundle.crt' './'
+		cp -f './ifirmware_parser/misc/platform_check.sh' './misc/platform_check.sh'
+		cp -f './ifirmware_parser/misc/firmwares.json' './misc/firmwares.json'
+	else
 		echo '[!] Required module are missing ...'
 		echo '[!] Downloading ifirmware parser module ...'
 		echo '[!] Submodule link: https://github.com/mast3rz3ro/ifirmware_parser'
 		git submodule update --init
 		exit 1
 	fi
-		
+fi
+
 		source './misc/platform_check.sh' # Check platform and set tools
 		
 		chmod -R +x 'tools/'
 		chmod +x './ifirmware_parser.sh' './misc/platform_check.sh' './boot_sshrd.sh'
 
 		########## Switch loop ##########
-while getopts y:z:cg option >/dev/null 2>&1; do
+while getopts p:m:s:b:i:o:y:z:krducgh option; do
 		case "${option}"
 	in
 		y) patch_iboot_with="${OPTARG}";;
@@ -47,6 +49,7 @@ while getopts y:z:cg option >/dev/null 2>&1; do
 		# Options
 		c) ssh_connect="yes";;
 		g) pwndfu_decrypt="yes";;
+		h) usage;; # call function
 	esac
 done
 	
@@ -73,22 +76,18 @@ fi
 		# Clean the variable
 		bp_switch=''
 		
-	if [ "$patch_iboot_with" = '1' ]; then
-		patch_iboot_with='iBoot64Patcher'
-	elif [ "$patch_iboot_with" = '2' ]; then
-		patch_iboot_with='kairos'
-	else
-		patch_iboot_with='iBoot64Patcher'
+	if [ "$patch_iboot_with" = '2' ]; then
+		patch_iboot_with='iBoot64Patcher' # Windows users
 		# haiyuidesu fork of iBoot64Patcher uses -p switch (this is are required for windows)
 		if [ "$platform" = 'Windows' ]; then bp_switch='-p'; fi
+	else
+		patch_iboot_with='kairos' # use kairs by default
 	fi
 	
-	if [ "$pack_ramdisk_with" = '1' ]; then
-		pack_ramdisk_with='img4'
-	elif [ "$pack_ramdisk_with" = '2' ]; then
+	if [ "$pack_ramdisk_with" = '2' ]; then
 		pack_ramdisk_with='img4tool'
 	else
-		pack_ramdisk_with='img4'
+		pack_ramdisk_with='img4' # use img4 by default
 	fi
 
 
@@ -241,14 +240,14 @@ if [ "$platform" != 'Darwin' ] && [ "$check_ios" -lt '161' ]; then
 		hdiutil detach -force '/tmp/SSHRD'
 		hdiutil resize -sectors min "$temp_folder"'/reassigned_ramdisk.dmg'
 	elif [ "$platform" = 'Darwin' ] && [ "$check_ios" -lt '161' ]; then
-		echo '[Warnning] Creating RAMDISK may fail on iOS 11.3 or lower.'
+		echo '[!] Warnning creating RAMDISK may fail on iOS 11.3 or lower.'
 		hdiutil resize -size 210MB "$temp_folder"'/ramdisk.dmg'
 		hdiutil attach -mountpoint '/tmp/SSHRD' "$temp_folder"'/ramdisk.dmg'
 		gtar -x --no-overwrite-dir -f 'misc/sshtars/ssh.tar.gz' -C '/tmp/SSHRD/'
 		hdiutil detach -force '/tmp/SSHRD'
 		hdiutil resize -sectors min "$temp_folder"'/ramdisk.dmg'
 	elif [ "$platform" != 'Darwin' ] && [ "$check_ios" -ge '161' ]; then
-		echo "[Warnning] We are missing a utility for handling APFS system!"
+		echo "[!] Warnning we are missing a utility for handling APFS system!"
 		echo "[!] Please select lower than iOS 16.1 and try again."
 fi
 
@@ -260,11 +259,11 @@ fi
 		"$img4" -i "$temp_folder"'/reassigned_ramdisk.dmg' -o "$output_folder"'/ramdisk.img4' -M "$shsh_file" -A -T rdsk
 		
 	elif [ "$platform" = 'Windows' ] && [ "$pack_ramdisk_with" = 'img4tool' ]; then
-		echo '[WARNNING] You have selected packing ramdisk.dmg with img4tool'
-		echo " the img4 fork has in Windows can take a lot of time when packing ramdisk.dmg"
-		echo ' however using img4tool can also result in failing to boot'
-		echo ' please note that this option is only available for Windows users.'
-		echo
+		echo '[!] Warnning you have selected packing ramdisk.dmg with img4tool'
+		echo 'img4tool are faster than img4 in packing process'
+		echo 'however packing with img4tool may result in failing to boot the RAMDISK'
+		echo 'please note that this option is only available for Windows users.'
+		echo ''
 		echo '[-] Packing using img4tool ...'
 		"$img4tool" -i "$temp_folder"'/ramdisk.dmg' -c "$output_folder"'/ramdisk.img4' -s "$shsh_file" -t rdsk
 
