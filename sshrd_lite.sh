@@ -118,7 +118,7 @@ fi
 
 
 		check_ios="$major_ios""$minor_ios"
-		output_folder='2_ssh_ramdisk/'"$product_json"_"$model_json"_"$build_json"
+		output_folder='2_ssh_ramdisk/'"$product_name"_"$product_model"_"$build_version"
 		if [ ! -d "$output_folder" ]; then mkdir "$output_folder"; fi
 		
 		ibec_file="$input_folder"'/'"$ibec_file"
@@ -285,7 +285,4 @@ fi
 		rm -rf "$temp_folder"
 
 		echo '[!] All Tasks Completed !'
-		echo '[-] To boot this SSHRD please use below command:'
-		echo './boot_sshrd.sh -p' "$product_json" '-b' "$build_json"
-
-
+		echo '[-] To boot this SSHRD please use: ./boot_sshrd.sh'
