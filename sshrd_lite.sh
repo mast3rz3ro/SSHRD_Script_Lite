@@ -41,7 +41,8 @@ fi
 		chmod +x './ifirmware_parser.sh' './misc/platform_check.sh' './boot_sshrd.sh'
 
 		########## Switch loop ##########
-while getopts p:m:s:b:i:o:y:z:krducgh option; do
+while getopts p:m:s:b:i:o:y:z:krducgh option;
+	do
 		case "${option}"
 	in
 		y) patch_iboot_with="${OPTARG}";;
