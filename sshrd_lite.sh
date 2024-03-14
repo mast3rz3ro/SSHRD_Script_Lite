@@ -74,13 +74,8 @@ fi
 		#      Optional switchs      #
 		##############################
 		
-		# Clean the variable
-		bp_switch=''
-		
 	if [ "$patch_iboot_with" = '2' ]; then
 		patch_iboot_with='iBoot64Patcher' # Windows users
-		# haiyuidesu fork of iBoot64Patcher uses -p switch (this is are required for windows)
-		if [ "$platform" = 'Windows' ]; then bp_switch='-p'; fi
 	else
 		patch_iboot_with='kairos' # use kairs by default
 	fi
@@ -175,9 +170,9 @@ fi
 	else
 		# Patch ibec/ibss/iboot using iboot64patcher
 		echo '[-] Patching iBoot files using iBoot64Patcher ...'
-		"$iBoot64Patcher" $bp_switch "$temp_folder"'/iBSS.dec' "$temp_folder"'/iBSS.patched'
-		"$iBoot64Patcher" $bp_switch "$temp_folder"'/iBEC.dec' "$temp_folder"'/iBEC.patched' -b "$boot_args"
-		"$iBoot64Patcher" $bp_switch "$temp_folder"'/iBoot.dec' "$temp_folder"'/iBoot.patched'
+		"$iBoot64Patcher" "$temp_folder"'/iBSS.dec' "$temp_folder"'/iBSS.patched'
+		"$iBoot64Patcher" "$temp_folder"'/iBEC.dec' "$temp_folder"'/iBEC.patched' -b "$boot_args"
+		"$iBoot64Patcher" "$temp_folder"'/iBoot.dec' "$temp_folder"'/iBoot.patched'
 	fi
 
 
