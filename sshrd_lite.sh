@@ -106,7 +106,7 @@ fi
 		
 		# Get firmware keys and download ramdisk
 		# Note: all variables are coming from here !
-		set -- "$@" '-r -k -o1_prepare_ramdisk' # makes sure to always download the ramdisk and decryption keys
+		#set -- "$@" '-r -k -o1_prepare_ramdisk' # makes sure to always download the ramdisk and decryption keys
 		export OPTIND='1' # zsh may not work ?
 		source './ifirmware_parser.sh'
 		if [ "$ibec_key" = "" ] && [ "$ibss_key" = '' ]; then echo '[e] Decryptions keys are not set !'; exit; fi
