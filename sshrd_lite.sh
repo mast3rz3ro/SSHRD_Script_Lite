@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 
 if [ "$1" = '' ]; then echo "For info please use 'sshrd_lite.sh -h'"; exit; fi
