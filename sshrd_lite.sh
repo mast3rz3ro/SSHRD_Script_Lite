@@ -41,10 +41,14 @@ fi
 		chmod +x './ifirmware_parser.sh' './misc/platform_check.sh' './boot_sshrd.sh'
 
 		########## Switch loop ##########
-while getopts p:m:s:b:i:o:y:z:krducgh option;
+while getopts p:m:s:b:y:z:cgh option;
 	do
 		case "${option}"
 	in
+		p) args+=(-p "${OPTARG}" );;
+		m) args+=(-m "${OPTARG}" );;
+		s) args+=(-s "${OPTARG}" );;
+		b) args+=(-b "${OPTARG}" );;
 		y) patch_iboot_with="${OPTARG}";;
 		z) pack_ramdisk_with="${OPTARG}";;
 		# Options
@@ -108,7 +112,7 @@ fi
 		# Note: all variables are coming from here !
 		#set -- "$@" '-r -k -o1_prepare_ramdisk' # makes sure to always download the ramdisk and decryption keys
 		export OPTIND='1' # zsh may not work ?
-		source './ifirmware_parser.sh'
+		source './ifirmware_parser.sh' "${args[@]}" -k -r -o "$input_folder"
 		if [ "$ibec_key" = "" ] && [ "$ibss_key" = '' ]; then echo '[e] Decryptions keys are not set !'; exit; fi
 
 
