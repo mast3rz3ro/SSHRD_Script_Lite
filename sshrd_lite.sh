@@ -112,7 +112,11 @@ fi
 		# Note: all variables are coming from here !
 		#set -- "$@" '-r -k -o1_prepare_ramdisk' # makes sure to always download the ramdisk and decryption keys
 		export OPTIND='1' # zsh may not work ?
+	if [ "$pwndfu_decrypt" = 'yes' ]; then
+		source './ifirmware_parser.sh' "${args[@]}" -r -o "$input_folder"
+	elif [ "$pwndfu_decrypt" = '' ]; then
 		source './ifirmware_parser.sh' "${args[@]}" -k -r -o "$input_folder"
+	fi
 		if [ "$ibec_key" = "" ] && [ "$ibss_key" = '' ]; then echo '[e] Decryptions keys are not set !'; exit; fi
 
 
