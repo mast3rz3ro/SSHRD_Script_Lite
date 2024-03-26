@@ -153,7 +153,7 @@ fi
 		if [ "$platform" = 'Linux' ]; then echo "[Hint] Linux: If you stuck here then close the script and run again as root."; fi
 		if [ "$platform" = 'Windows' ]; then echo "[Hint] Windows: If you are using MSYS2 then maybe you won't be able to see any output."; fi
 		"$gaster" pwn
-		printf -- "- Copying iboot files to: './'"
+		printf -- "- Copying iboot files to: './'\n"
 		cp "$ibec_file" './iBEC.raw'
 		cp "$ibss_file" './iBSS.raw'
 		cp "$iboot_file" './iBoot.raw'
