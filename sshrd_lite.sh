@@ -244,14 +244,14 @@ if [ "$platform" != 'Darwin' ] && [ "$check_ios" -lt '161' ]; then
 		hdiutil create -size 210m -imagekey diskimage-class=CRawDiskImage -format UDZO -fs HFS+ -layout NONE -srcfolder '/tmp/SSHRD' -copyuid root "$temp_folder"'/reassigned_ramdisk.dmg'
         hdiutil detach -force '/tmp/SSHRD'
         hdiutil attach -mountpoint '/tmp/SSHRD' "$temp_folder"'/reassigned_ramdisk.dmg'
-		gtar -x --no-overwrite-dir -f 'misc/sshtars/ssh.tar.gz' -C '/tmp/SSHRD/'
+		./tools/Darwin/gtar -x --no-overwrite-dir -f 'misc/sshtars/ssh.tar.gz' -C '/tmp/SSHRD/'
 		hdiutil detach -force '/tmp/SSHRD'
 		hdiutil resize -sectors min "$temp_folder"'/reassigned_ramdisk.dmg'
 	elif [ "$platform" = 'Darwin' ] && [ "$check_ios" -lt '161' ]; then
 		echo '[!] Warnning creating RAMDISK may fail on iOS 11.3 or lower.'
 		hdiutil resize -size 210MB "$temp_folder"'/ramdisk.dmg'
 		hdiutil attach -mountpoint '/tmp/SSHRD' "$temp_folder"'/ramdisk.dmg'
-		gtar -x --no-overwrite-dir -f 'misc/sshtars/ssh.tar.gz' -C '/tmp/SSHRD/'
+		./tools/Darwin/gtar -x --no-overwrite-dir -f 'misc/sshtars/ssh.tar.gz' -C '/tmp/SSHRD/'
 		hdiutil detach -force '/tmp/SSHRD'
 		hdiutil resize -sectors min "$temp_folder"'/ramdisk.dmg'
 	elif [ "$platform" != 'Darwin' ] && [ "$check_ios" -ge '161' ]; then
