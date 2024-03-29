@@ -40,10 +40,13 @@ git clone --recurse-submodules 'https://github.com/mast3rz3ro/SSHRD_Script_Lite'
 
 ## How to run
 
+**Find your correct product name: https://theapplewiki.com/wiki/Models**
+
 **Please note that the same exact commands can be used on all platforms.**
 
 ```shell
 # Getting started
+
 $ cd 'SSHRD_Script_Lite' # enter into working dir.
 $ ./sshrd_lite.sh -h # print help info
 
