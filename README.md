@@ -8,46 +8,64 @@
 2. Lite version which only focuses to make SSH ramdisk and not like main fork.
 3. Other features you should find it yourself :).
 
-## Requirements
-
-* Windows users you need to get bash environment. You can get it by installing MSYS2, Cygwin, or Git-Bash
-* Linux and MacOS users you already have bash environment.
-
 ## Supported devices and limits
 
+* Windows users you need to get bash environment. You can get it by installing MSYS2, Cygwin, or Git-Bash
+* Linux and macOS users you already have bash environment.
 * A 64-bit iDevice supported by checkm8 (A7-A11).
 * Apple TV and M1/T2 requires manually replacing the "ssh.tar.gz" find it [here](https://github.com/verygenericname/sshtars).
 * Linux/Windows currently doesn't support making ramdisk for iOS 16.1 and above.
 
-## How to use (All Platforms):
+## Preparing for installtion
 
-1. You need to install git:
+**Windows users:**
+* 1. Install [MSYS2](https://www.msys2.org)
+* 2. Install git: `pacman -S git`
+* 3. Clone this repo and run.
 
-```
-For MSYS2 users you can install git via:
-$ pacman -S git
-```
 
-2. If you already have git then the reset of steps are same:
-
-```
-$ git clone --recurse-submodules 'https://github.com/mast3rz3ro/SSHRD_Script_Lite'
-$ cd SSHRD_Script_Lite
-$ chmod +x ./sshrd_lite.sh
-$ ./sshrd_lite.sh -h
+**Clone this repo**
+```shell
+git clone --recurse-submodules 'https://github.com/mast3rz3ro/SSHRD_Script_Lite' && chmod +x './SSHRD_Script_Lite/sshrd_lite.sh'
 ```
 
-* Then run it like below:
+## How to run
 
-```
-$ ./sshrd_lite.sh -p product_name -s ios_version
-or
-$ ./sshrd_lite.sh -p product_name -b build_version
-```
+**Please note that the same exact commands can be used on all platforms.**
 
-* For more info see:
-```
-$ ./sshrd_lite.sh -h
+```shell
+# Getting started
+$ cd 'SSHRD_Script_Lite' # enter into working dir.
+$ ./sshrd_lite.sh -h # print help info
+
+### Some live examples ###
+
+# make ramdisk for product type 'iphone8,2' with latest ios 15 available
+$ ./sshrd_lite.sh -p iphone8,2 -s 15
+
+# make ramdisk for product type 'iphone8,2' with exact ios version.
+$ ./sshrd_lite.sh -p iphone8,2 -s 15.7.9
+
+# make ramdisk for product type 'iphone8,2' with exact build version.
+$ ./sshrd_lite.sh -p iphone8,2 -b 19H384
+
+
+### Extra options ###
+
+# decrypt iboot files with gaster useful in case firmware keys not available yet.
+$ ./sshrd_lite.sh -p iphone8,2 -b 19H384 -g
+
+# repack only ramdisk.img image using img4tool
+$ ./sshrd_lite.sh -p iphone8,2 -b 19H384 -z 2
+
+# force patch iboot files using kairos
+$ ./sshrd_lite.sh -p iphone8,2 -b 19H384 -y 1 (if not used script will auto select best for you)
+
+# force patch iboot files using iBoot64Patcher (if not used script will auto select best for you)
+$ ./sshrd_lite.sh -p iphone8,2 -b 19H384 -y 2
+
+# connect device via ssh mode (used after sshrd booted)
+$ ./sshrd_lite.sh -c
 ```
 
 
