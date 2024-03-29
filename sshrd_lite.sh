@@ -150,7 +150,7 @@ fi
 		# Decyrpt ibec/ibss/iboot with gaster
 		echo '[!] Decrypting with gaster...'
 		echo '[!] Please make sure to put your device into DFU mode'
-		if [ "$platform" = 'Linux' ]; then echo "[Hint] Linux: If you stuck here then close the script and run again as root."; fi
+		if [ "$platform" = 'Linux' ] || [ "$platform" = 'Darwin' ]; then echo "[Hint] If you stuck here then close the script and run it again with sudo"; fi
 		if [ "$platform" = 'Windows' ]; then echo "[Hint] Windows: If you are using MSYS2 then maybe you won't be able to see any output."; fi
 		"$gaster" pwn
 		printf -- "- Copying iboot files to: './'\n"
