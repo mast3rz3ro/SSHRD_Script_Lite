@@ -19,10 +19,19 @@
 ## Preparing for installtion
 
 **Windows users:**
-* 1. Install [MSYS2](https://www.msys2.org)
-* 2. Install git: `pacman -S git`
-* 3. Clone this repo and run.
+1. Install [MSYS2](https://www.msys2.org)
+2. Install git: `pacman -S git`
+3. Clone this repo and run.
 
+**Linux users:**
+1. Update packages list: `sudo apt-get update`
+2. Install git: `sudo apt install git`
+3. Clone this repo and run.
+
+**macOS users:**
+1. Install [brew](https://brew.sh)
+2. Install git: `brew install git`
+3. Clone this repo and run.
 
 **Clone this repo**
 ```shell
@@ -41,31 +50,31 @@ $ ./sshrd_lite.sh -h # print help info
 ### Some live examples ###
 
 # make ramdisk for product type 'iphone8,2' with latest ios 15 available
-$ ./sshrd_lite.sh -p iphone8,2 -s 15
+$ './sshrd_lite.sh' -p 'iphone8,2' -s '15'
 
 # make ramdisk for product type 'iphone8,2' with exact ios version.
-$ ./sshrd_lite.sh -p iphone8,2 -s 15.7.9
+$ './sshrd_lite.sh' -p 'iphone8,2' -s '15.7.9'
 
 # make ramdisk for product type 'iphone8,2' with exact build version.
-$ ./sshrd_lite.sh -p iphone8,2 -b 19H384
+$ './sshrd_lite.sh' -p 'iphone8,2' -b '19H384'
 
 
 ### Extra options ###
 
 # decrypt iboot files with gaster useful in case firmware keys not available yet.
-$ ./sshrd_lite.sh -p iphone8,2 -b 19H384 -g
+$ './sshrd_lite.sh' -p 'iphone8,2' -b '19H384' -g
 
 # repack only ramdisk.img image using img4tool
-$ ./sshrd_lite.sh -p iphone8,2 -b 19H384 -z 2
+$ './sshrd_lite.sh' -p 'iphone8,2' -b '19H384' -z 2
 
 # force patch iboot files using kairos
-$ ./sshrd_lite.sh -p iphone8,2 -b 19H384 -y 1 (if not used script will auto select best for you)
+$ './sshrd_lite.sh' -p 'iphone8,2' -b '19H384' -y 1 (if not used script will auto select best for you)
 
 # force patch iboot files using iBoot64Patcher (if not used script will auto select best for you)
-$ ./sshrd_lite.sh -p iphone8,2 -b 19H384 -y 2
+$ './sshrd_lite.sh' -p 'iphone8,2' -b '19H384' -y 2
 
 # connect device via ssh mode (used after sshrd booted)
-$ ./sshrd_lite.sh -c
+$ './sshrd_lite.sh' -c
 ```
 
 
