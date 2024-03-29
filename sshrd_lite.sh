@@ -62,11 +62,11 @@ done
 if [ "$ssh_connect" = 'yes' ]; then
 		if [ "$iproxy" = '' ]; then echo '[!] Warnning iproxy variable are not set !'; fi
 		if [ "$sshpass" = '' ]; then echo '[!] Warnning sshpass variable are not set !'; fi
-		"$iproxy" 2222 22 &>/dev/null &
-		check=$("$sshpass" -p 'alpine' ssh -o StrictHostKeyChecking=no -p2222 root@localhost echo connected)
-	if [ $check = 'connected' ]; then
+		sudo "$iproxy" 2222 22 &>/dev/null &
+		check=$("$sshpass" -p 'alpine' ssh -o StrictHostKeyChecking=no -p2222 root@localhost "echo 'connected'")
+	if [ "$check" = 'connected' ]; then
 		"$sshpass" -p 'alpine' ssh -o StrictHostKeyChecking=no -p2222 root@localhost
-	else
+	elif [ -z "$check" ] && [ $platform = 'Linux' ]; then
 		echo '[-] Force closing usbmuxd ...'
 		sudo systemctl stop usbmuxd
 		sudo usbmuxd -p -f
