@@ -68,9 +68,9 @@ $ './sshrd_lite.sh' -p 'iphone8,2' -b '19H384' -g
 $ './sshrd_lite.sh' -p 'iphone8,2' -b '19H384' -z 2
 
 # force patch iboot files using kairos
-$ './sshrd_lite.sh' -p 'iphone8,2' -b '19H384' -y 1 (if not used script will auto select best for you)
+$ './sshrd_lite.sh' -p 'iphone8,2' -b '19H384' -y 1 # (if not used script will auto select best for you)
 
-# force patch iboot files using iBoot64Patcher (if not used script will auto select best for you)
+# force patch iboot files using iBoot64Patcher # (if not used script will auto select best for you)
 $ './sshrd_lite.sh' -p 'iphone8,2' -b '19H384' -y 2
 
 # connect device via ssh mode (used after sshrd booted)
