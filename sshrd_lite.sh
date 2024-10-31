@@ -119,6 +119,10 @@ fi
 		if [ "$ibec_key" = "" ] && [ "$ibss_key" = '' ]; then echo '[e] Decryptions keys are not set !'; exit; fi
 	fi
 
+		# b£tter organize
+		input_folder="$input_folder/${product_name}_${product_model}_${build_version}"
+		mkdir -p "$input_folder"
+
 		check_ios="$major_ios""$minor_ios"
 		output_folder='2_ssh_ramdisk/'"$product_name"_"$product_model"_"$build_version"
 		if [ ! -d "$output_folder" ]; then mkdir "$output_folder"; fi
